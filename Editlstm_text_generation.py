@@ -6,6 +6,7 @@ from keras.layers import Dense
 from keras.layers import LSTM
 from keras.optimizers import RMSprop
 from tensorflow.keras.utils import get_file
+from keras.models import load_model
 import numpy as np
 import random
 import sys
@@ -24,7 +25,7 @@ char_indices = dict((c, i) for i, c in enumerate(chars))
 indices_char = dict((i, c) for i, c in enumerate(chars))
 
 # cut the text in semi-redundant sequences of maxlen characters
-maxlen = 40
+maxlen = 80
 step = 3
 sentences = []
 next_chars = []
@@ -44,9 +45,10 @@ for i, sentence in enumerate(sentences):
 
 # build the model: a single LSTM
 print('Build model...')
-model = Sequential()
-model.add(LSTM(128, input_shape=(maxlen, len(chars))))
-model.add(Dense(len(chars), activation='softmax'))
+# model = Sequential()
+# model.add(LSTM(128, input_shape=(maxlen, len(chars))))
+# model.add(Dense(len(chars), activation='softmax'))
+model = load_model("model_lstm_text.h5")
 
 optimizer = RMSprop(learning_rate=0.01)
 model.compile(loss='categorical_crossentropy', optimizer=optimizer)
@@ -93,14 +95,18 @@ def on_epoch_end(epoch, _):
             sys.stdout.flush()
         print()
 
-print_callback = LambdaCallback(on_epoch_end=on_epoch_end)
+# print_callback = LambdaCallback(on_epoch_end=on_epoch_end)
 
-on_epoch_end(0, 0)
+# on_epoch_end(0, 0)
+
+# model.fit(x, y,
+#           batch_size=128,
+#           epochs=1,
+#           callbacks=[print_callback])
 
 model.fit(x, y,
           batch_size=128,
-          epochs=1,
-          callbacks=[print_callback])
-
-model.save('model_lstm_text.h5')
-
+          epochs=50,
+          )
+# Generate text after training
+on_epoch_end(0, 0)
